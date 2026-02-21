@@ -34,7 +34,7 @@ def download_champion_data():
         champion_id_to_name[champ_id] = champ_name
 
     # Save to JSON
-    with open('champion_name_map.json', 'w') as f:
+    with open('../champion_name_map.json', 'w') as f:
         json.dump(champion_id_to_name, f, indent=2)
 
     print(f"Downloaded {len(champion_id_to_name)} champions")

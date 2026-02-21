@@ -75,10 +75,10 @@ def main():
     # Save to file
     match_ids_list = list(all_match_ids)
     df = pd.DataFrame({'match_id': match_ids_list})
-    df.to_csv('match_ids.csv', index=False)
+    df.to_parquet('match_ids.parquet', index=False)
 
     print(f"\nCollected {len(match_ids_list)} unique match IDs")
-    print(f"Saved to match_ids.csv")
+    print(f"Saved to match_ids.parquet")
 
 
 if __name__ == "__main__":

@@ -13,7 +13,7 @@ API_KEY = "RGAPI-03ddf5d1-c485-4d38-99b2-64ef1ae3bf32"  # Same key as before
 
 lol_watcher = LolWatcher(API_KEY)
 
-with open('champion_name_map.json', 'r') as f:
+with open('../champion_name_map.json', 'r') as f:
     CHAMPION_ID_TO_NAME = json.load(f)
 
 
@@ -96,11 +96,11 @@ def main():
 
     # Load match IDs
     try:
-        match_ids_df = pd.read_csv('match_ids.csv')
+        match_ids_df = pd.read_parquet('../match_ids.parquet')
         match_ids = match_ids_df['match_id'].tolist()
         print(f"Found {len(match_ids)} match IDs to download")
     except FileNotFoundError:
-        print("match_ids.csv not found. Run collect_match_ids.py first!")
+        print("match_ids.parquet not found. Run collect_match_ids.py first!")
         return
 
     # Download matches
@@ -124,9 +124,9 @@ def main():
     # Save to CSV
     if all_drafts:
         df = pd.DataFrame(all_drafts)
-        df.to_csv('match_drafts.csv', index=False)
+        df.to_parquet('match_drafts.parquet', index=False)
         print(f"\nDownloaded {len(all_drafts)} matches")
-        print(f"Saved to match_drafts.csv")
+        print(f"Saved to match_drafts.parquet")
 
         # Show sample
         print("\nSample data:")

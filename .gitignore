@@ -1,0 +1,8 @@
+# Data files
+data/
+*.parquet
+*.csv
+*.json
+
+# Config
+config.yaml
