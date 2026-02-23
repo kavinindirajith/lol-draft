@@ -1,4 +1,5 @@
 # League of Legends Draft Win Predictor
+> Project in Progress
 
 Predict ranked solo/duo match outcomes based on champion draft using machine learning.
 
@@ -9,4 +10,5 @@ Predict ranked solo/duo match outcomes based on champion draft using machine lea
 - Explainable predictions with champion win rates
 
 # Current Progress
- - Data Collection and Cleaning through Riot API
+ - Data Collection and Cleaning through Riot API (Complete)
+ - Train Random Forest on Collected Data
