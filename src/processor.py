@@ -9,7 +9,7 @@ import json
 class MatchProcessor:
     """Process raw match data"""
 
-    def __init__(self, champion_mapping_path='../data/champion_name_map.json'):
+    def __init__(self, champion_mapping_path='data/champion_name_map.json'):
         with open(champion_mapping_path, 'r') as f:
             self.champion_map = json.load(f)
 
@@ -28,30 +28,29 @@ class MatchProcessor:
         blue_team = [p for p in participants if p['teamId'] == 100]
         red_team = [p for p in participants if p['teamId'] == 200]
 
-        # mins = info['gameDuration'] // 60
-        # secs = info['gameDuration'] % 60
-        duration = int(info['gameDuration'])
-
         return {
             'blue_picks': [p['championName'] for p in blue_team],
+            'blue_positions': [p.get('teamPosition') or p.get('individualPosition') for p in blue_team],
             'blue_bans': [
                 self.get_champion_name(ban['championId'])
                 for ban in teams[0]['bans']
                 if ban['championId'] != -1
             ],
             'red_picks': [p['championName'] for p in red_team],
+            'red_positions': [p.get('teamPosition') or p.get('individualPosition') for p in red_team],
             'red_bans': [
                 self.get_champion_name(ban['championId'])
                 for ban in teams[1]['bans']
                 if ban['championId'] != -1
             ],
             'blue_win': teams[0]['win'],
-            'game_duration': f"{duration // 60}:{duration % 60:02d}",
+            'game_duration': int(info['gameDuration']),
+            'game_version': info.get('gameVersion', ''),
             'match_id': match_data['metadata']['matchId']
         }
 
     def process_matches(self, matches):
         """Process list of matches into DataFrame"""
         drafts = [self.extract_draft(m) for m in matches]
-        drafts = [d for d in drafts if d is not None]  # Remove failed
+        drafts = [d for d in drafts]
         return pd.DataFrame(drafts)

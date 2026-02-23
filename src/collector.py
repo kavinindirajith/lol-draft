@@ -11,12 +11,12 @@ from tqdm import tqdm
 class RiotDataCollector:
     """Collect match data from Riot API"""
 
-    def __init__(self, api_key, region='na1'):
+    def __init__(self, api_key, region='na1', routing='americas'):
         self.lol_watcher = LolWatcher(api_key)
         self.region = region
-        self.routing = 'americas'  # For NA region
+        self.routing = routing
 
-    def get_challenger_puuids(self, count=10):
+    def get_challenger_puuids(self, count):
         """Get PUUIDs of Challenger players"""
         try:
             challenger = self.lol_watcher.league.challenger_by_queue(
@@ -28,7 +28,7 @@ class RiotDataCollector:
             print(f"Error: {e}")
             return []
 
-    def get_match_ids(self, puuids, matches_per_player=20):
+    def get_match_ids(self, puuids, matches_per_player):
         """Get ranked match IDs from players"""
         all_match_ids = set()
 
@@ -56,9 +56,9 @@ class RiotDataCollector:
 
             # Validate
             info = match['info']
-            if info['queueId'] != 420:
+            if info['queueId'] != 420: # Ranked Solo/Duo only
                 return None
-            if info['gameDuration'] < 600:
+            if info['gameDuration'] < 600: # <10 min games removed
                 return None
 
             return match
