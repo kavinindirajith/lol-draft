@@ -9,7 +9,7 @@ import json
 class MatchProcessor:
     """Process raw match data"""
 
-    def __init__(self, champion_mapping_path='data/external/champion_name_map.json'):
+    def __init__(self, champion_mapping_path='../data/champion_name_map.json'):
         with open(champion_mapping_path, 'r') as f:
             self.champion_map = json.load(f)
 
@@ -28,6 +28,10 @@ class MatchProcessor:
         blue_team = [p for p in participants if p['teamId'] == 100]
         red_team = [p for p in participants if p['teamId'] == 200]
 
+        # mins = info['gameDuration'] // 60
+        # secs = info['gameDuration'] % 60
+        duration = int(info['gameDuration'])
+
         return {
             'blue_picks': [p['championName'] for p in blue_team],
             'blue_bans': [
@@ -42,7 +46,7 @@ class MatchProcessor:
                 if ban['championId'] != -1
             ],
             'blue_win': teams[0]['win'],
-            'game_duration': info['gameDuration'],
+            'game_duration': f"{duration // 60}:{duration % 60:02d}",
             'match_id': match_data['metadata']['matchId']
         }
 
