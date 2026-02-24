@@ -4,5 +4,9 @@ data/
 *.csv
 *.json
 
+# Pickle files
+models/
+*.pkl
+
 # Config
 config.yaml
