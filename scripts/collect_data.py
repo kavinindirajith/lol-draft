@@ -2,9 +2,10 @@
 Collect match data from Riot API
 Usage: python scripts/collect_data.py
 """
-
+import os.path
 import sys
 import yaml
+import pandas as pd
 from pathlib import Path
 
 # Add src to path
@@ -39,7 +40,14 @@ def main():
     matches = collector.download_matches(match_ids[:config['max_matches']])
 
     print("Step 4: Processing matches...")
-    df = processor.process_matches(matches)
+    if os.path.exists("data/match_drafts.parquet"):
+        existing_df = pd.read_parquet('data/match_drafts.parquet')
+        new_df = processor.process_matches(matches)
+        df = pd.concat([existing_df, new_df]).drop_duplicates(subset='match_id')
+        df.to_parquet('data/match_drafts.parquet')
+    else:
+        df = processor.process_matches(matches)
+        df.to_parquet('data/match_drafts.parquet')
     print(f"Processed {len(df)} matches")
     print(f"Blue win rate: {df['blue_win'].mean():.2%}")  # Should be ~50%
 

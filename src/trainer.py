@@ -19,16 +19,18 @@ class DraftPredictor:
             n_estimators=100,
             max_depth=10,
             random_state=42,
-            n_jobs=-1
+            n_jobs=-1,
+            class_weight='balanced'
         )
-        self.mlb_blue = MultiLabelBinarizer()
-        self.mlb_red = MultiLabelBinarizer()
+        self.mlb = MultiLabelBinarizer()
         self.all_champions = None
 
     def build_features(self, df):
-        """One-hot encode champion picks into feature matrix"""
-        blue_encoded = self.mlb_blue.fit_transform(df['blue_picks'])
-        red_encoded = self.mlb_red.fit_transform(df['red_picks'])
+        all_picks = pd.concat([df['blue_picks'], df['red_picks']])
+        self.mlb.fit(all_picks)
+
+        blue_encoded = self.mlb.transform(df['blue_picks'])
+        red_encoded = self.mlb.transform(df['red_picks'])
         return np.hstack([blue_encoded, red_encoded])
 
     def train(self, df):
