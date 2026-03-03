@@ -7,10 +7,16 @@ import pandas as pd
 import numpy as np
 import pickle
 from pathlib import Path
+import sys
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, classification_report
 from sklearn.preprocessing import MultiLabelBinarizer
+
+sys.path.append(str(Path(__file__).parent.parent))
+
+from src.draft_features import DraftFeatureEngineer
+
 
 
 class DraftPredictor:
@@ -24,26 +30,36 @@ class DraftPredictor:
         )
         self.mlb = MultiLabelBinarizer()
         self.all_champions = None
+        self.featureEngineer = DraftFeatureEngineer()
 
-    def build_features(self, df):
-        all_picks = pd.concat([df['blue_picks'], df['red_picks']])
-        self.mlb.fit(all_picks)
+    def _transform_features(self, df):
 
         blue_encoded = self.mlb.transform(df['blue_picks'])
+        synergy_features = self.featureEngineer.transform(df).values
         red_encoded = self.mlb.transform(df['red_picks'])
-        return np.hstack([blue_encoded, red_encoded])
+        return np.hstack([blue_encoded, red_encoded, synergy_features])
 
     def train(self, df):
         """Train model on processed match dataframe"""
         print(f"Training on {len(df)} matches...")
 
-        X = self.build_features(df)
+        X = df
         y = df['blue_win'].astype(int)
 
-        X_train, X_test, y_train, y_test = train_test_split(
+        X_train_df, X_test_df, y_train, y_test = train_test_split(
             X, y, test_size=0.2, random_state=42
         )
 
+        all_picks = pd.concat([X_train_df['blue_picks'], X_train_df['red_picks']])
+        self.mlb.fit(all_picks)
+        self.featureEngineer.fit(X_train_df)
+        total_pairs = len(self.featureEngineer.synergy_stats)
+        sparse_pairs = sum(1 for v in self.featureEngineer.synergy_stats.values() if v['games'] < 3)
+        print(f"Total pairs: {total_pairs}")
+        print(f"Sparse pairs (< 3 games): {sparse_pairs} ({sparse_pairs / total_pairs:.1%})")
+
+        X_train = self._transform_features(X_train_df)
+        X_test = self._transform_features(X_test_df)
         self.model.fit(X_train, y_train)
 
         # Evaluate
